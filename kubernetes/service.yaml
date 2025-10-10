@@ -1,0 +1,22 @@
+# kubernetes/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${APP_NAME}-service
+  annotations:
+    # Recommended: Force the AWS LBC to provision an NLB
+    service.beta.kubernetes.io/aws-load-balancer-class: nlb 
+    
+    # Recommended: NLB Target Type IP for direct Pod-to-LB traffic (more efficient)
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip 
+    
+    # Optional: Make it internet-facing (default is internal if no scheme specified)
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing 
+spec:
+  type: LoadBalancer 
+  ports:
+    - port: 80 # Service port
+      targetPort: 8090 # Container port (adjust as per your app)
+      protocol: TCP
+  selector:
+    app: ${APP_NAME}

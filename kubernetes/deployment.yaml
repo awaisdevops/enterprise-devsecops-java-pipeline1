@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $APP_NAME
+  labels:
+    app: $APP_NAME
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: $APP_NAME
+  template:
+    metadata:
+      labels:
+        app: $APP_NAME
+    spec:
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      imagePullSecrets:
+        - name: my-registry-key
+      containers:
+      - name: $APP_NAME
+        securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+        image: awaisakram11199/devopsimages:$IMAGE_NAME
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8090
+        readinessProbe:
+            periodSeconds: 5
+            tcpSocket:
+              port: 8090
+        livenessProbe:
+            periodSeconds: 5
+            tcpSocket:
+              port: 8090
+        resources:
+            requests:
+              cpu: 200m
+              memory: 64Mi
+            limits:
+              cpu: 300m
+              memory: 128Mi
+
