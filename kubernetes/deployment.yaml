@@ -37,12 +37,18 @@ spec:
         - containerPort: 8090
         readinessProbe:
             periodSeconds: 5
-            tcpSocket:
+            httpGet:
+              path: /actuator/health/readiness
               port: 8090
+            #tcpSocket:
+              #port: 8090
         livenessProbe:
             periodSeconds: 5
-            tcpSocket:
+            httpGet:
+              path: /actuator/health/liveness
               port: 8090
+            #tcpSocket:
+              #port: 8090
         resources:
             requests:
               cpu: 200m
