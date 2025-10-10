@@ -105,7 +105,7 @@ pipeline {
             }
         }
         */
-        
+        /*
         stage('Package: Build and Tag Docker Image') {
 
             //when {
@@ -127,7 +127,7 @@ pipeline {
                 }
             }
         }    
-
+        
         stage('Security: Trivy Container Image Scan'){            
             steps{
                 script {                    
@@ -143,6 +143,7 @@ pipeline {
                 }
             }
         }
+        */
         
         stage("Infrastructure: Plan Terraform Changes"){
              environment {
@@ -200,7 +201,7 @@ pipeline {
                     echo 'Waiting for manual approval...'
                     
                     try {
-                        timeout(time: 3, unit: 'MINUTES') {
+                        timeout(time: 2, unit: 'MINUTES') {
                             input message: 'Review the Terraform plan and approve to proceed', 
                                 ok: 'Apply Infrastructure',
                                 submitter: 'admin,devops-team'
