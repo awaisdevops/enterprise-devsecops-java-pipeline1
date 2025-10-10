@@ -3,7 +3,6 @@ package com.example;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
@@ -22,9 +21,6 @@ import static org.junit.Assert.*;
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MyServiceIT {
 
-    @Value("${local.server.port}")
-    private int port;
-
     @Autowired
     private TestRestTemplate restTemplate;
 
@@ -32,24 +28,30 @@ public class MyServiceIT {
     public void testApplicationContextLoads() {
         // Test that the Spring application context loads successfully
         assertNotNull("RestTemplate should be autowired", restTemplate);
-        assertTrue("Port should be greater than 0", port > 0);
     }
 
     @Test
     public void testIndexPageLoads() {
-        // Test that the index page is accessible
-        String url = "http://localhost:" + port + "/";
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        // TestRestTemplate automatically uses the correct port and base URL
+        ResponseEntity<String> response = restTemplate.getForEntity("/", String.class);
         
         assertEquals("HTTP status should be OK", HttpStatus.OK, response.getStatusCode());
         assertNotNull("Response body should not be null", response.getBody());
+        assertTrue("Response should contain content", response.getBody().length() > 0);
     }
 
     @Test
     public void testApplicationGetStatus() {
-        // Test the Application getStatus method in integration context
+        // Test the Application getStatus method
         Application app = new Application();
         String status = app.getStatus();
         assertEquals("Status should be OK", "OK", status);
+    }
+    
+    @Test
+    public void testActuatorHealth() {
+        // Test that actuator health endpoint is accessible
+        ResponseEntity<String> response = restTemplate.getForEntity("/actuator/health", String.class);
+        assertEquals("Health endpoint should be OK", HttpStatus.OK, response.getStatusCode());
     }
 } 
