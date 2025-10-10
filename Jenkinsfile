@@ -126,8 +126,7 @@ pipeline {
                     }
                 }
             }
-        }
-        /*
+        }    
 
         stage('Security: Trivy Container Image Scan'){            
             steps{
@@ -143,8 +142,8 @@ pipeline {
                     archiveArtifacts artifacts: 'trivy-image-report.json', onlyIfSuccessful: true
                 }
             }
-        }*/
-        /*
+        }
+        
         stage("Infrastructure: Plan Terraform Changes"){
              environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -216,35 +215,7 @@ pipeline {
             }
         }
 
-        stage("Infrastructure: Review and Apply"){
-            steps{
-                script {
-                    dir('infra') {
-                        // Wait for manual approval
-                        timeout(time: 1, unit: 'MINUTES') { //Adjust the approval time accordingly 
-                            input message: 'Review Terraform plan and approve to apply?', 
-                                ok: 'Apply Infrastructure'
-                        }
-                        
-                        // Apply the infrastructure changes
-                        sh 'terraform apply -auto-approve tfplan'
-                        
-                        // Capture and display outputs
-                        sh 'terraform output -json > terraform-outputs.json'
-                        archiveArtifacts artifacts: 'terraform-outputs.json', allowEmptyArchive: false
-                        
-                        // Display key outputs
-                        def clusterName = sh(script: 'terraform output -raw cluster_name', returnStdout: true).trim()
-                        def clusterEndpoint = sh(script: 'terraform output -raw cluster_endpoint', returnStdout: true).trim()
-                        
-                        echo "EKS Cluster Name: ${clusterName}"
-                        echo "EKS Cluster Endpoint: ${clusterEndpoint}"
-                    }
-                }
-            }
-        }
-
-        stage ("Infrastructure: Apply Terraform Changes"){
+        stage("Infrastructure: Apply Terraform Changes"){
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
                 AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
@@ -331,7 +302,7 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
 
         stage('Deploy: Deploy to Environment') {
 
