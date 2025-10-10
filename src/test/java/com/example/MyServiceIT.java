@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
  * - Is in src/test/java directory
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MyServiceIT {
 
     @LocalServerPort
