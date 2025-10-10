@@ -364,7 +364,7 @@ pipeline {
                     
                     // Construct the secure URL: https://x-oauth-basic:<PAT>@github.com/...
                     
-                    def remoteUrl = "https://${patUsername}:${PASS}@github.com/awaisdevops/project1.git"
+                    def remoteUrl = "https://${patUsername}:${PASS}@github.com/awaisdevops/enterprise-devsecops-java-pipeline1.git"
                     
                     // ---------------------------
 
