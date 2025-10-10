@@ -144,7 +144,7 @@ pipeline {
                 }
             }
         }*/
-
+        /*
         stage("Infrastructure: Plan Terraform Changes"){
              environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -331,7 +331,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
 
         stage('Deploy: Deploy to Environment') {
 
