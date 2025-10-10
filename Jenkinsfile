@@ -221,7 +221,7 @@ pipeline {
                 script {
                     dir('infra') {
                         // Wait for manual approval
-                        timeout(time: 1 unit: 'MINUTES') { #Adjust the approval time accordingly 
+                        timeout(time: 1, unit: 'MINUTES') { //Adjust the approval time accordingly 
                             input message: 'Review Terraform plan and approve to apply?', 
                                 ok: 'Apply Infrastructure'
                         }
