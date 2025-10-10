@@ -1,0 +1,30 @@
+# Terraform state files (created by Jenkins, not for Git)
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+terraform-*.log
+terraform-*.txt
+terraform-*.json
+
+# Security reports (created by Jenkins)
+trivy-*.json
+trivy-*.html
+dependency-check-report.html
+
+# Temporary files
+test.txt
+temp/
+tmp/
+
+# Maven target
+target/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
