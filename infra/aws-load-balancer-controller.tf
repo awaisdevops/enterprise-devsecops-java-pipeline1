@@ -1,4 +1,3 @@
-/*
 //variable "repo_chart" {
   //default = "https://aws.github.io/eks-charts"
 //}
@@ -47,4 +46,4 @@ resource "helm_release" "aws_load_balancer_controller" {
       value = module.lb-service-iam-role-service-account.aws_iam_role_arn
     }
   ]
-}*/
+}

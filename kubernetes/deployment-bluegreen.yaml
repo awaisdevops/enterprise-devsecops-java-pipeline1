@@ -1,22 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: $APP_NAME
+  name: ${APP_NAME}-${SLOT}
   labels:
-    app: $APP_NAME
-    environment: $DEPLOY_ENV
+    app: ${APP_NAME}
+    environment: ${DEPLOY_ENV}
+    slot: ${SLOT}
 spec:
-  replicas: $REPLICAS
-  minReadySeconds: $MIN_READY_SECONDS
+  replicas: ${REPLICAS}
+  minReadySeconds: ${MIN_READY_SECONDS}
   selector:
     matchLabels:
-      app: $APP_NAME
+      app: ${APP_NAME}
+      slot: ${SLOT}
   template:
     metadata:
       labels:
-        app: $APP_NAME
-        environment: $DEPLOY_ENV
-        version: "$IMAGE_NAME"
+        app: ${APP_NAME}
+        environment: ${DEPLOY_ENV}
+        slot: ${SLOT}
+        version: "${IMAGE_NAME}"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8090"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       terminationGracePeriodSeconds: 30
       securityContext:
@@ -27,7 +34,7 @@ spec:
       imagePullSecrets:
         - name: my-registry-key
       containers:
-      - name: $APP_NAME
+      - name: ${APP_NAME}
         securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -35,7 +42,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-        image: awaisakram11199/devopsimages:$IMAGE_NAME
+        image: awaisakram11199/devopsimages:${IMAGE_NAME}
         imagePullPolicy: Always
         ports:
         - containerPort: 8090
@@ -43,26 +50,35 @@ spec:
           protocol: TCP
         env:
         - name: ENVIRONMENT
-          value: "$DEPLOY_ENV"
+          value: "${DEPLOY_ENV}"
         - name: APP_NAME
-          value: "$APP_NAME"
+          value: "${APP_NAME}"
+        - name: DEPLOYMENT_SLOT
+          value: "${SLOT}"
+        - name: VERSION
+          value: "${IMAGE_NAME}"
         readinessProbe:
             periodSeconds: 10
             initialDelaySeconds: 20
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
             httpGet:
               path: /actuator/health/readiness
               port: 8090
         livenessProbe:
             periodSeconds: 10
             initialDelaySeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
             httpGet:
               path: /actuator/health/liveness
               port: 8090
         resources:
             requests:
-              cpu: $CPU_REQUEST
-              memory: $MEMORY_REQUEST
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
             limits:
-              cpu: $CPU_LIMIT
-              memory: $MEMORY_LIMIT
-
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}

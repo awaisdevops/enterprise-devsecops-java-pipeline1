@@ -10,7 +10,7 @@ terraform {
 provider "aws" {
   region = "ap-northeast-2"
 }
-/*
+
 provider "kubernetes" {
   host                   = module.dc-llc-cluster.cluster_endpoint
   cluster_ca_certificate = base64decode(module.dc-llc-cluster.cluster_certificate_authority_data)
@@ -118,4 +118,3 @@ module "aws_ceritification_manager" {
   domain_name    = "devops-portfolio.site"
   hosted_zone_id = module.hosted_zone.hosted_zone_id
 }
-*/
