@@ -46,8 +46,6 @@ provider "helm" {
 }
 
 
-variable "aws_region" {}
-
 module "lb-service-iam-policy-role" {
   source = "./lb-service-iam-policy-role"
   cluster_name = module.dc-llc-cluster.cluster_name

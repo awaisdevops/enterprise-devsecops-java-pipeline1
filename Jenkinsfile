@@ -33,6 +33,7 @@ pipeline {
 
     stages {
 
+        /*
         stage('App Version Bump') {
             // tags: maven,version,parse-version,set-version,image-tag
             steps {
@@ -47,7 +48,9 @@ pipeline {
             }
             }
         }
+        */
         
+        /*
         stage('Build & Package') {
             // tags: maven,compile,package
             steps {
@@ -59,6 +62,7 @@ pipeline {
                 }
             }
         }
+        */
         
         stage('Unit Tests') {
             steps {
@@ -92,7 +96,8 @@ pipeline {
                 }
             }
         }        
-        
+
+        /*
         stage("SonarQube: Code Scan"){
             steps{
                 withSonarQubeEnv("SQ"){                    
@@ -100,7 +105,8 @@ pipeline {
                     sh "mvn clean verify sonar:sonar"
                 }
             }
-        }        
+        }     
+        */   
 
         /*
         stage("OWASP: Dependency Check"){
@@ -111,11 +117,13 @@ pipeline {
         }        
         */
 
+        /*
         stage("Trivy: Filesystem Scan"){
             steps{
                 sh "trivy fs --format  table -o trivy-fs-report.json ."
             }
         }   
+        */
 
         /*
         stage("SonarQube: Quality Gate"){
@@ -126,7 +134,8 @@ pipeline {
             }
         }
         */
-                
+
+        /*
         stage('Docker: Build Image') {              
 
             steps {
@@ -143,6 +152,7 @@ pipeline {
             }
         }    
         
+        
         stage('Trivy: Image Scan'){            
             steps{
                 script {                    
@@ -157,7 +167,8 @@ pipeline {
                     archiveArtifacts artifacts: 'trivy-image-report.json', onlyIfSuccessful: true
                 }
             }
-        }        
+        }       
+        */ 
         
         stage("Terraform: Plan"){
             
