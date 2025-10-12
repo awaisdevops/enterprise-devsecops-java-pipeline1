@@ -59,6 +59,7 @@ module "lb-service-iam-role-service-account" {
   oidc_issuer_url = module.dc-llc-cluster.cluster_oidc_issuer_url
 }
 
+/*
 module "security_group" {
   source            = "./security-groups"
   ec2_sg_name       = "SG for EC2 to allow ports 22, 80 and 443"
@@ -119,4 +120,4 @@ module "aws_ceritification_manager" {
   source         = "./certificate-manager"
   domain_name    = "devops-portfolio.site"
   hosted_zone_id = module.hosted_zone.hosted_zone_id
-}
+}*/

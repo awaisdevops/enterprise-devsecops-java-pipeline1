@@ -33,7 +33,7 @@ pipeline {
 
     stages {
 
-        /*
+        
         stage('App Version Bump') {
             // tags: maven,version,parse-version,set-version,image-tag
             steps {
@@ -48,9 +48,9 @@ pipeline {
             }
             }
         }
-        */
         
-        /*
+        
+        
         stage('Build & Package') {
             // tags: maven,compile,package
             steps {
@@ -62,7 +62,7 @@ pipeline {
                 }
             }
         }
-        */
+        
         
         stage('Unit Tests') {
             steps {
