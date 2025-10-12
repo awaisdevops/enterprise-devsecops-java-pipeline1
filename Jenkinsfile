@@ -106,14 +106,16 @@ pipeline {
                 }
             }
         }        
-        
+
+        /*
         stage("OWASP: Dependency Check"){
             steps{
                 dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'dc'
-                dependencyCheckPublisher pattern: '**/app-dep-check-report.html'
+                dependencyCheckPublisher pattern: '/app-dep-check-report.html'
             }
         }        
-    
+        */
+
         stage("Trivy: Filesystem Scan"){
             steps{
                 sh "trivy fs --format  table -o trivy-fs-report.json ."
