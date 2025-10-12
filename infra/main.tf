@@ -8,7 +8,11 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-northeast-2"
+  region = var.aws_region
+}
+
+variable "aws_region" {
+  default = "ap-northeast-2"
 }
 
 provider "kubernetes" {
