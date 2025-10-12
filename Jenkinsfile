@@ -170,7 +170,7 @@ pipeline {
         }       
         */ 
         
-        /*
+        
         stage("Terraform: Plan"){
             
              environment {
@@ -221,9 +221,9 @@ pipeline {
                 }
             }
         }
-        */
+        
 
-        /*
+        
         stage("Infra: Approve"){
             steps{
                 script {
@@ -245,9 +245,9 @@ pipeline {
                 }
             }
         }
-        */
         
-        /*
+        
+        
         stage("Infra: Apply"){
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -336,7 +336,7 @@ pipeline {
                 }
             }
         }
-        */
+        
 
         stage('Blue-Green Deploy') {
             when {
