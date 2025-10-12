@@ -384,7 +384,7 @@ pipeline {
                             cpuRequest: '100m',
                             cpuLimit: '200m',
                             memoryRequest: '256Mi',
-                            memoryLimit: '512Mi',
+                            memoryLimit: '256Mi',
                             appName: 'devops-app-prod',
                             lbScheme: 'internet-facing',
                             minReadySeconds: 30,
@@ -431,6 +431,15 @@ pipeline {
                             ).trim()
                             env.IMAGE_NAME = "${pomVersion}-${BUILD_NUMBER}"
                             echo "IMAGE_NAME resolved to ${env.IMAGE_NAME}"
+                        }
+
+                        // Verify image tag exists on Docker Hub before proceeding
+                        def tagCode = sh(
+                            script: "curl -s -o /dev/null -w '%{http_code}' https://hub.docker.com/v2/repositories/awaisakram11199/devopsimages/tags/${env.IMAGE_NAME}/",
+                            returnStdout: true
+                        ).trim()
+                        if (tagCode != '200') {
+                            error("Image tag not found on Docker Hub: ${env.IMAGE_NAME}. Run 'Docker: Build Image' first.")
                         }
 
                         // Configure kubectl
@@ -570,10 +579,16 @@ pipeline {
                                 
                                 // Ensure main service exists (with current slot or default to target)
                                 def initialSlot = currentSlot == 'none' ? targetSlot : currentSlot
-                                sh """
-                                    export ACTIVE_SLOT="${initialSlot}"
-                                    envsubst < processed/service-main.yaml | kubectl apply -f - --namespace=${env.NAMESPACE}
-                                """
+                                if (albReady) {
+                                    sh """
+                                        export ACTIVE_SLOT="${initialSlot}"
+                                        envsubst < processed/service-main.yaml | kubectl apply -f - --namespace=${env.NAMESPACE}
+                                    """
+                                } else {
+                                    echo 'ALB webhook not ready; skipping Service creation'
+                                    currentBuild.result = 'UNSTABLE'
+                                    return
+                                }
                             }
                             
                             // Wait for target slot to be ready
