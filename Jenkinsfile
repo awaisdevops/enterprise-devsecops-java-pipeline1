@@ -367,9 +367,9 @@ pipeline {
                         ],
                         'staging': [
                             namespace: 'staging',
-                            replicas: 2,
-                            cpuRequest: '200m',
-                            cpuLimit: '300m',
+                            replicas: 1,
+                            cpuRequest: '100m',
+                            cpuLimit: '200m',
                             memoryRequest: '256Mi',
                             memoryLimit: '512Mi',
                             appName: 'devops-app-staging',
@@ -380,10 +380,10 @@ pipeline {
                         ],
                         'prod': [
                             namespace: 'production',
-                            replicas: 3,
-                            cpuRequest: '300m',
-                            cpuLimit: '500m',
-                            memoryRequest: '512Mi',
+                            replicas: 1,
+                            cpuRequest: '100m',
+                            cpuLimit: '200m',
+                            memoryRequest: '256Mi',
                             memoryLimit: '512Mi',
                             appName: 'devops-app-prod',
                             lbScheme: 'internet-facing',
@@ -422,7 +422,17 @@ pipeline {
                             }
                             echo '✓ Deployment approved'
                         }
-                        
+
+                        // Ensure IMAGE_NAME is set before any kubectl/envsubst usage
+                        if (!env.IMAGE_NAME || env.IMAGE_NAME.trim() == '') {
+                            def pomVersion = sh(
+                                script: "grep -m1 '<version>' pom.xml | sed -E 's/.*<version>([^<]+)<\\/version>.*/\\1/'",
+                                returnStdout: true
+                            ).trim()
+                            env.IMAGE_NAME = "${pomVersion}-${BUILD_NUMBER}"
+                            echo "IMAGE_NAME resolved to ${env.IMAGE_NAME}"
+                        }
+
                         // Configure kubectl
                         if (!env.EKS_CLUSTER_NAME || env.EKS_CLUSTER_NAME == 'N/A') {
                             error('EKS cluster name not available.')
@@ -433,6 +443,17 @@ pipeline {
                                 --name ${env.EKS_CLUSTER_NAME} \
                                 --region ${AWS_REGION}
                         """
+
+                        // Ensure AWS Load Balancer Controller webhook is ready
+                        sh """
+                            kubectl -n kube-system rollout status deployment/aws-load-balancer-controller --timeout=5m || true
+                            kubectl -n kube-system get svc aws-load-balancer-webhook-service || true
+                            kubectl -n kube-system get endpoints aws-load-balancer-webhook-service || true
+                        """
+                        def albReady = sh(
+                            script: "kubectl -n kube-system get endpoints aws-load-balancer-webhook-service -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null || true",
+                            returnStdout: true
+                        ).trim()
                         
                         // Setup namespace and secrets
                         sh """
@@ -536,12 +557,16 @@ pipeline {
                                 echo "Deploying ${targetSlot} slot..."
                                 sh "kubectl apply -f processed/deployment-${targetSlot}.yaml --namespace=${env.NAMESPACE}"
                                 
-                                // Create preview service for testing
-                                sh """
-                                    if [ -f processed/service-preview-${targetSlot}.yaml ]; then
-                                        kubectl apply -f processed/service-preview-${targetSlot}.yaml --namespace=${env.NAMESPACE}
-                                    fi
-                                """
+                                // Create preview service for testing (only if ALB webhook is ready)
+                                if (albReady) {
+                                    sh """
+                                        if [ -f processed/service-preview-${targetSlot}.yaml ]; then
+                                            kubectl apply -f processed/service-preview-${targetSlot}.yaml --namespace=${env.NAMESPACE}
+                                        fi
+                                    """
+                                } else {
+                                    echo 'ALB webhook not ready; skipping preview service for now'
+                                }
                                 
                                 // Ensure main service exists (with current slot or default to target)
                                 def initialSlot = currentSlot == 'none' ? targetSlot : currentSlot
