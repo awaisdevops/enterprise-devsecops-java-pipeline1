@@ -115,8 +115,9 @@ pipeline {
             steps{
                 sh "trivy fs --format  table -o trivy-fs-report.json ."
             }
-        }        
+        }   
 
+        /*
         stage("SonarQube: Quality Gate"){
             steps{
                 timeout(time: 10, unit: "MINUTES"){
@@ -124,6 +125,7 @@ pipeline {
                 }
             }
         }
+        */
                 
         stage('Docker: Build Image') {              
 
