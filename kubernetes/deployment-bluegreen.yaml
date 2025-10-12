@@ -19,7 +19,7 @@ spec:
         app: ${APP_NAME}
         environment: ${DEPLOY_ENV}
         slot: ${SLOT}
-        version: "${IMAGE_NAME}"
+        version: "${env.IMAGE_NAME}"
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8090"
@@ -42,7 +42,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-        image: awaisakram11199/devopsimages:${IMAGE_NAME}
+        image: awaisakram11199/devopsimages:${env.IMAGE_NAME}
         imagePullPolicy: Always
         ports:
         - containerPort: 8090
@@ -56,7 +56,7 @@ spec:
         - name: DEPLOYMENT_SLOT
           value: "${SLOT}"
         - name: VERSION
-          value: "${IMAGE_NAME}"
+          value: "${env.IMAGE_NAME}"
         readinessProbe:
             periodSeconds: 10
             initialDelaySeconds: 20

@@ -16,7 +16,7 @@ spec:
       labels:
         app: $APP_NAME
         environment: $DEPLOY_ENV
-        version: "$IMAGE_NAME"
+        version: "$env.IMAGE_NAME"
     spec:
       terminationGracePeriodSeconds: 30
       securityContext:
@@ -35,7 +35,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-        image: awaisakram11199/devopsimages:$IMAGE_NAME
+        image: awaisakram11199/devopsimages:$env.IMAGE_NAME
         imagePullPolicy: Always
         ports:
         - containerPort: 8090
