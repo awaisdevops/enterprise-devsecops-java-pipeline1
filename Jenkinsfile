@@ -870,45 +870,7 @@ EOF
                 }
             }
         }
-
-        stage('Commit App Version') {
-            steps {
-                script {
-
-                    // Retrieve the credentials. $PASS MUST be the GitHub Personal Access Token (PAT).
-                  
-                  withCredentials([usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                                  
-                    // --- GITHUB PAT AUTH FIX ---
-                    // GitHub rejects the traditional 'username:password@...' format.
-                    // It requires the token to be used as the password with 'x-oauth-basic' as the placeholder username.
-                    
-                    def patUsername = "x-oauth-basic"
-                    
-                    // Construct the secure URL: https://x-oauth-basic:<PAT>@github.com/...
-                    
-                    def remoteUrl = "https://${patUsername}:${PASS}@github.com/awaisdevops/enterprise-devsecops-java-pipeline1.git"
-                    
-                    // ---------------------------
-
-                    // 1. Configure Git for the commit author                    
-                    sh 'git config --global user.email "jenkins@example.com"'
-                    sh 'git config --global user.name "jenkins"'
-
-                    // 2. Set the remote URL using the PAT-based authentication URL                    
-                    sh "git remote set-url origin ${remoteUrl}"
-                    
-                    // 3. Commit and Push  
-                    sh '''
-                        git add pom.xml
-                        git add src/
-                        git commit -m "ci: Automated version bump [skip ci]"
-                        git push origin HEAD:main
-                    '''
-                    }
-                }
-            }
-        }
+        
         /*
         stage('Ansible: Configure Swap') {
             when {
@@ -1109,6 +1071,45 @@ EOF
         }
         
     }*/
+
+    stage('Commit App Version') {
+            steps {
+                script {
+
+                    // Retrieve the credentials. $PASS MUST be the GitHub Personal Access Token (PAT).
+                  
+                  withCredentials([usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                                  
+                    // --- GITHUB PAT AUTH FIX ---
+                    // GitHub rejects the traditional 'username:password@...' format.
+                    // It requires the token to be used as the password with 'x-oauth-basic' as the placeholder username.
+                    
+                    def patUsername = "x-oauth-basic"
+                    
+                    // Construct the secure URL: https://x-oauth-basic:<PAT>@github.com/...
+                    
+                    def remoteUrl = "https://${patUsername}:${PASS}@github.com/awaisdevops/enterprise-devsecops-java-pipeline1.git"
+                    
+                    // ---------------------------
+
+                    // 1. Configure Git for the commit author                    
+                    sh 'git config --global user.email "jenkins@example.com"'
+                    sh 'git config --global user.name "jenkins"'
+
+                    // 2. Set the remote URL using the PAT-based authentication URL                    
+                    sh "git remote set-url origin ${remoteUrl}"
+                    
+                    // 3. Commit and Push  
+                    sh '''
+                        git add pom.xml
+                        git add src/
+                        git commit -m "ci: Automated version bump [skip ci]"
+                        git push origin HEAD:main
+                    '''
+                    }
+                }
+            }
+        }
     
     post {
         // Send email on successful completion
