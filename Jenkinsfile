@@ -135,7 +135,7 @@ pipeline {
         }
         */
 
-        /*
+        
         stage('Docker: Build Image') {              
 
             steps {
@@ -143,25 +143,25 @@ pipeline {
                     echo "building the docker image..."
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
 
-                        sh "docker build -t awaisakram11199/devopsimages:${IMAGE_NAME} ."
+                        sh "docker build -t awaisakram11199/devopsimages:${env.IMAGE_NAME} ."
                         sh 'echo $PASS | docker login -u $USER --password-stdin'
-                        sh "docker push awaisakram11199/devopsimages:${IMAGE_NAME}"
+                        sh "docker push awaisakram11199/devopsimages:${env.IMAGE_NAME}"
                         
                     }
                 }
             }
         }    
         
-        
+        /*
         stage('Trivy: Image Scan'){            
             steps{
                 script {                    
                     // 1. Define local variable for the image tag
-                    def FULL_IMAGE_TAG = "awaisakram11199/devopsimages:${IMAGE_NAME}"
+                    def FULL_IMAGE_TAG = "awaisakram11199/devopsimages:${env.IMAGE_NAME}"
 
                     // 2. Execute the shell command using the variable                    
-                    //sh "trivy image --format json -o trivy-image-report.json ${FULL_IMAGE_TAG}"
-                    sh "trivy image --format json -o trivy-image-report.json ${FULL_IMAGE_TAG}"                    
+                    //sh "trivy image --format json -o trivy-image-report.json ${env.FULL_IMAGE_TAG}"
+                    sh "trivy image --format json -o trivy-image-report.json ${env.FULL_IMAGE_TAG}"                    
 
                     // 3. Archive the report artifact (This step can be outside 'script' but is often placed here for flow)
                     archiveArtifacts artifacts: 'trivy-image-report.json', onlyIfSuccessful: true
@@ -170,6 +170,7 @@ pipeline {
         }       
         */ 
         
+        /*
         stage("Terraform: Plan"){
             
              environment {
@@ -220,7 +221,9 @@ pipeline {
                 }
             }
         }
+        */
 
+        /*
         stage("Infra: Approve"){
             steps{
                 script {
@@ -228,7 +231,7 @@ pipeline {
                     
                     try {
                         // SElect the approval time as required
-                        timeout(time: 2, unit: 'MINUTES') {
+                        timeout(time: 30, unit: 'MINUTES') {
                             input message: 'Review the Terraform plan and approve to proceed', 
                                 ok: 'Apply Infrastructure',
                                 submitter: 'admin,devops-team' // Select the approvers as required
@@ -242,7 +245,9 @@ pipeline {
                 }
             }
         }
-
+        */
+        
+        /*
         stage("Infra: Apply"){
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -331,6 +336,7 @@ pipeline {
                 }
             }
         }
+        */
 
         stage('Blue-Green Deploy') {
             when {
@@ -409,7 +415,7 @@ pipeline {
                         // Production approval
                         if (config.approvalRequired) {
                             echo '⚠️  Production deployment requires approval'
-                            timeout(time: 10, unit: 'MINUTES') {
+                            timeout(time: 30, unit: 'MINUTES') {
                                 input message: "Deploy to PRODUCTION?", 
                                       ok: 'Deploy',
                                       submitter: 'admin,devops-leads'
@@ -490,7 +496,7 @@ pipeline {
                             dir('kubernetes') {
                                 sh """
                                     export APP_NAME="${env.APP_NAME}"
-                                    export IMAGE_NAME="${IMAGE_NAME}"
+                                    export IMAGE_NAME="${env.IMAGE_NAME}"
                                     export NAMESPACE="${env.NAMESPACE}"
                                     export REPLICAS="${env.REPLICAS}"
                                     export CPU_REQUEST="${env.CPU_REQUEST}"
@@ -606,15 +612,15 @@ pipeline {
                             echo "Ready to switch traffic from ${currentSlot} to ${targetSlot}"
                             echo '========================================='
 
-                            // Waits up to mention ddddddduration for manual approval from authorized users 
+                            // Waits up to mention duration for manual approval from authorized users 
                             // before switching traffic to the target deployment.
-                            timeout(time: 2, unit: 'MINUTES') { //select the some tests duration accordingly
+                            timeout(time: 3, unit: 'MINUTES') { //select the some tests duration accordingly
                                 input message: """
                                     Switch traffic to ${targetSlot}?
                                     
                                     Current: ${currentSlot}
                                     Target: ${targetSlot}
-                                    Version: ${IMAGE_NAME}
+                                    Version: ${env.IMAGE_NAME}
                                 """,
                                 ok: 'Switch Traffic',
                                 submitter: 'admin,devops-leads' //select the approvers as required
@@ -643,7 +649,7 @@ pipeline {
                             // Cleanup old slot after successful switch
                             if (currentSlot != 'none' && currentSlot != '') {
                                 echo "Cleaning up old ${currentSlot} deployment..."
-                                timeout(time: 2, unit: 'MINUTES') { //select the some tests duration accordingly
+                                timeout(time: 30 unit: 'MINUTES') { //select the some tests duration accordingly
                                     def cleanup = input(
                                         message: "Remove old ${currentSlot} deployment?",
                                         ok: 'Yes, remove it',
@@ -677,7 +683,7 @@ pipeline {
                             dir('kubernetes') {
                                 sh """
                                     export APP_NAME="${env.APP_NAME}"
-                                    export IMAGE_NAME="${IMAGE_NAME}"
+                                    export IMAGE_NAME="${env.IMAGE_NAME}"
                                     export NAMESPACE="${env.NAMESPACE}"
                                     export REPLICAS="${env.REPLICAS}"
                                     export CPU_REQUEST="${env.CPU_REQUEST}"
@@ -730,7 +736,7 @@ pipeline {
                         echo "Strategy: ${config.blueGreenEnabled ? 'Blue-Green' : 'Rolling Update'}"
                         echo "Environment: ${params.DEPLOY_ENV}"
                         echo "Namespace: ${env.NAMESPACE}"
-                        echo "Image: awaisakram11199/devopsimages:${IMAGE_NAME}"
+                        echo "Image: awaisakram11199/devopsimages:${env.IMAGE_NAME}"
                         if (config.blueGreenEnabled) {
                             echo "Active Slot: ${env.ACTIVE_SLOT}"
                         }
@@ -747,7 +753,7 @@ Environment: ${params.DEPLOY_ENV}
 Strategy: ${config.blueGreenEnabled ? 'Blue-Green' : 'Rolling Update'}
 Namespace: ${env.NAMESPACE}
 Build: ${BUILD_NUMBER}
-Image: awaisakram11199/devopsimages:${IMAGE_NAME}"
+Image: awaisakram11199/devopsimages:${env.IMAGE_NAME}"
 ${config.blueGreenEnabled ? "Active Slot: ${env.ACTIVE_SLOT}" : ""}
 Service: ${env.SERVICE_ENDPOINT}
 Deployed: \$(date)
