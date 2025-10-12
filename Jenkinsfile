@@ -649,7 +649,7 @@ pipeline {
                             // Cleanup old slot after successful switch
                             if (currentSlot != 'none' && currentSlot != '') {
                                 echo "Cleaning up old ${currentSlot} deployment..."
-                                timeout(time: 30 unit: 'MINUTES') { //select the some tests duration accordingly
+                                timeout(time: 30, unit: 'MINUTES') { //select the some tests duration accordingly
                                     def cleanup = input(
                                         message: "Remove old ${currentSlot} deployment?",
                                         ok: 'Yes, remove it',
