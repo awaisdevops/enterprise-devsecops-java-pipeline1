@@ -227,7 +227,7 @@ pipeline {
                     } catch (Exception e) {
                         echo '✗ Deployment not approved'
                         currentBuild.result = 'ABORTED'
-                        error('Terraform: Approve: ${e.message}')
+                        error("Terraform: Approve: ${e.message}")
                     }
                 }
             }
@@ -1070,7 +1070,7 @@ EOF
             }
         }
         
-    }*/
+*/
 
     stage('Commit App Version') {
             steps {
@@ -1110,6 +1110,8 @@ EOF
                 }
             }
         }
+        
+    }
     
     post {
         // Send email on successful completion
