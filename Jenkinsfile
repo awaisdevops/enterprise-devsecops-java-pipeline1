@@ -11,12 +11,7 @@ pipeline {
             name: 'DEPLOY_ENV',
             choices: ['dev', 'staging', 'prod'],
             description: 'Select deployment environment'
-        )
-        booleanParam(
-            name: 'SKIP_TESTS',
-            defaultValue: false,
-            description: 'Skip tests if you needed'
-        )
+        )    
         booleanParam(
             name: 'DEPLOY_TO_K8S',
             defaultValue: true,
@@ -124,7 +119,7 @@ pipeline {
 
         stage("SonarQube: Quality Gate"){
             steps{
-                timeout(time: 2, unit: "MINUTES"){
+                timeout(time: 10, unit: "MINUTES"){
                     waitForQualityGate abortPipeline: false
                 }
             }
