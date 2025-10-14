@@ -796,7 +796,7 @@ Build: ${BUILD_NUMBER}
 Image: ${DOCKER_REGISTRY}:${env.IMAGE_NAME}"
 ${config.blueGreenEnabled ? "Active Slot: ${env.ACTIVE_SLOT}" : ""}
 Service: ${env.SERVICE_ENDPOINT}
-Deployed: $(date)
+Deployed: \$(date)
 EOF
                         """
                         
