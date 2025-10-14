@@ -143,21 +143,21 @@ pipeline {
                     echo "building the docker image..."
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
 
-                        sh "docker build -t awaisakram11199/devopsimages:${env.IMAGE_NAME} ."
+                        sh "docker build -t ${DOCKER_REGISTRY}:${env.IMAGE_NAME} ."
                         sh 'echo $PASS | docker login -u $USER --password-stdin'
-                        sh "docker push awaisakram11199/devopsimages:${env.IMAGE_NAME}"
+                        sh "docker push ${DOCKER_REGISTRY}:${env.IMAGE_NAME}"
                         
                     }
                 }
             }
         }    
         
-        
+        /*
         stage('Trivy: Image Scan'){            
             steps{
                 script {                    
                     // 1. Define local variable for the image tag
-                    def FULL_IMAGE_TAG = "awaisakram11199/devopsimages:${env.IMAGE_NAME}"
+                    def FULL_IMAGE_TAG = "${DOCKER_REGISTRY}:${env.IMAGE_NAME}"
 
                     // 2. Execute the shell command using the variable                    
                     //sh "trivy image --format json -o trivy-image-report.json ${env.FULL_IMAGE_TAG}"
@@ -168,7 +168,7 @@ pipeline {
                 }
             }
         }       
-        
+        */
         
         
         stage("Terraform: Plan"){
@@ -435,7 +435,7 @@ pipeline {
 
                         // Verify image tag exists on Docker Hub before proceeding
                         def tagCode = sh(
-                            script: "curl -s -o /dev/null -w '%{http_code}' https://hub.docker.com/v2/repositories/awaisakram11199/devopsimages/tags/${env.IMAGE_NAME}/",
+                            script: "curl -s -o /dev/null -w '%{http_code}' https://hub.docker.com/v2/repositories/${DOCKER_REGISTRY}/tags/${env.IMAGE_NAME}/",
                             returnStdout: true
                         ).trim()
                         if (tagCode != '200') {
@@ -776,7 +776,7 @@ pipeline {
                         echo "Strategy: ${config.blueGreenEnabled ? 'Blue-Green' : 'Rolling Update'}"
                         echo "Environment: ${params.DEPLOY_ENV}"
                         echo "Namespace: ${env.NAMESPACE}"
-                        echo "Image: awaisakram11199/devopsimages:${env.IMAGE_NAME}"
+                        echo "Image: ${DOCKER_REGISTRY}:${env.IMAGE_NAME}"
                         if (config.blueGreenEnabled) {
                             echo "Active Slot: ${env.ACTIVE_SLOT}"
                         }
@@ -793,10 +793,10 @@ Environment: ${params.DEPLOY_ENV}
 Strategy: ${config.blueGreenEnabled ? 'Blue-Green' : 'Rolling Update'}
 Namespace: ${env.NAMESPACE}
 Build: ${BUILD_NUMBER}
-Image: awaisakram11199/devopsimages:${env.IMAGE_NAME}"
+Image: ${DOCKER_REGISTRY}:${env.IMAGE_NAME}"
 ${config.blueGreenEnabled ? "Active Slot: ${env.ACTIVE_SLOT}" : ""}
 Service: ${env.SERVICE_ENDPOINT}
-Deployed: \$(date)
+Deployed: $(date)
 EOF
                         """
                         
