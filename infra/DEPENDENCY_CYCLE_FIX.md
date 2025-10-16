@@ -74,6 +74,12 @@ The solution breaks the circular dependency by completely decoupling the AWS Loa
     - Added `atomic`, `cleanup_on_fail`, and `force_update` flags to the Helm release
     - These flags help recover from failed installations and prevent state conflicts
 
+11. Final comprehensive circular dependency resolution:
+    - Removed the `depends_on = [null_resource.addon_dependencies]` from the EKS cluster module
+    - This was causing the internal EKS module cycle by creating a circular reference
+    - Set `create_kms_key = false` to disable KMS key creation entirely
+    - This completely breaks all circular dependency chains within the module
+
 ## How to Apply the Fix
 
 1. Run `terraform init` to initialize the Terraform configuration
@@ -89,4 +95,5 @@ The solution breaks the circular dependency by completely decoupling the AWS Loa
   - `iam_role_additional_policies`: Set to empty map `{}`
   - `kms_key_aliases`: Set to empty map `{}`
   - `attach_encryption_policy`: Set to `false`
+  - `create_kms_key`: Set to `false`
 - These features can be re-enabled after the cluster is successfully created with `terraform import` and `terraform refresh` if needed

@@ -65,12 +65,6 @@ module "dc-llc-cluster" {
     }
     #aws-ebs-csi-driver = {} 
   }
-  
-  # We've removed this dependency to break the cycle
-  depends_on = [
-    null_resource.addon_dependencies
-  ]
-  
 
   # Adds the current caller identity as an administrator via cluster access entry
   enable_cluster_creator_admin_permissions = true
@@ -99,6 +93,7 @@ module "dc-llc-cluster" {
   
   # Disable encryption policy attachment
   attach_encryption_policy = false
+  create_kms_key = false
 
   tags = {
     environment = "dev"
