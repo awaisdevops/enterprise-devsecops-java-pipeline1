@@ -106,7 +106,7 @@ resource "null_resource" "decoupled_addon_dependencies" {
   
   # This will force Terraform to wait for the load balancer controller to be ready
   provisioner "local-exec" {
-    command = "sleep 60"  # Give the controller time to initialize
+    command = "sleep 150"  # Give the controller time to initialize
   }
   
   # This is a dummy trigger to ensure this resource is always created

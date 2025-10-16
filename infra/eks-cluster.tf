@@ -49,15 +49,6 @@ module "dc-llc-cluster" {
   */
   
   addons = {
-    coredns = {
-      resolve_conflicts = "OVERWRITE"
-      timeouts = {
-        create = "30m"
-        update = "30m"
-        delete = "30m"
-      }
-      most_recent = true
-    }
     eks-pod-identity-agent = {
       before_compute = true
       resolve_conflicts = "OVERWRITE"
@@ -76,9 +67,9 @@ module "dc-llc-cluster" {
   }
   
   # We've removed this dependency to break the cycle
-  # depends_on = [
-  #   null_resource.addon_dependencies
-  # ]
+  depends_on = [
+    null_resource.addon_dependencies
+  ]
   
 
   # Adds the current caller identity as an administrator via cluster access entry
