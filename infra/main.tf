@@ -16,14 +16,14 @@ variable "aws_region" {
 }
 
 provider "kubernetes" {
-  host                   = module.dc-llc-cluster.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.dc-llc-cluster.cluster_certificate_authority_data)
+  host                   = try(module.dc-llc-cluster.cluster_endpoint, "")
+  cluster_ca_certificate = try(base64decode(module.dc-llc-cluster.cluster_certificate_authority_data), null)
 
   # Dynamic Token Generation via AWS CLI
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args = ["eks", "get-token", "--cluster-name", module.dc-llc-cluster.cluster_name]
+    args = ["eks", "get-token", "--cluster-name", try(module.dc-llc-cluster.cluster_name, "")]
   }
 }
 
@@ -31,16 +31,16 @@ provider "kubernetes" {
 provider "helm" {
   # The kubernetes block tells the Helm provider how to connect to the cluster
   kubernetes = {
-    host                   = module.dc-llc-cluster.cluster_endpoint
+    host                   = try(module.dc-llc-cluster.cluster_endpoint, "")
 
-    cluster_ca_certificate = base64decode(module.dc-llc-cluster.cluster_certificate_authority_data)
+    cluster_ca_certificate = try(base64decode(module.dc-llc-cluster.cluster_certificate_authority_data), null)
 
     # 3. Dynamic Token Generation (Authentication)
     # This executes the AWS CLI to fetch a fresh, short-lived token
     exec = {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
-      args = ["eks", "get-token", "--cluster-name", module.dc-llc-cluster.cluster_name]
+      args = ["eks", "get-token", "--cluster-name", try(module.dc-llc-cluster.cluster_name, "")]
     }
   }
 }
@@ -48,7 +48,11 @@ provider "helm" {
 
 module "lb-service-iam-policy-role" {
   source = "./lb-service-iam-policy-role"
-  cluster_name = module.dc-llc-cluster.cluster_name
+  cluster_name = local.cluster_outputs.cluster_name
+  
+  depends_on = [
+    null_resource.cluster_readiness
+  ]
 }
 
 module "lb-service-iam-role-service-account" {
