@@ -167,8 +167,7 @@ pipeline {
                 }
             }
         }       
-        */
-        
+                
         
         stage("Terraform: Plan"){
             
