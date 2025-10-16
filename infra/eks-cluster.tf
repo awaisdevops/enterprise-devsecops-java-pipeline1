@@ -51,16 +51,36 @@ module "dc-llc-cluster" {
   */
   
   addons = {
-    coredns              = {}
+    coredns = {
+      resolve_conflicts = "OVERWRITE"
+      timeouts = {
+        create = "30m"
+        update = "30m"
+        delete = "30m"
+      }
+      most_recent = true
+    }
     eks-pod-identity-agent = {
       before_compute = true
+      resolve_conflicts = "OVERWRITE"
+      most_recent = true
     }
-    kube-proxy             = {}
-    vpc-cni              = {
+    kube-proxy = {
+      resolve_conflicts = "OVERWRITE"
+      most_recent = true
+    }
+    vpc-cni = {
       before_compute = true
+      resolve_conflicts = "OVERWRITE"
+      most_recent = true
     }
     #aws-ebs-csi-driver = {} 
   }
+  
+  # Ensure add-ons are created after the addon_dependencies resource
+  depends_on = [
+    null_resource.addon_dependencies
+  ]
   
 
   # Adds the current caller identity as an administrator via cluster access entry

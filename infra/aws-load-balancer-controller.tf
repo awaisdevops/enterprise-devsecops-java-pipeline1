@@ -19,7 +19,13 @@ resource "helm_release" "aws_load_balancer_controller" {
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
   namespace  = var.lb_namespace
-  version    = var.helm_version 
+  version    = var.helm_version
+  
+  # Add timeout to prevent context deadline exceeded
+  timeout = 900 # 15 minutes
+  
+  # Add wait flag to ensure it's fully deployed
+  wait = true
 
   set = [
     {
@@ -45,5 +51,10 @@ resource "helm_release" "aws_load_balancer_controller" {
       name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
       value = module.lb-service-iam-role-service-account.aws_iam_role_arn
     }
+  ]
+  
+  # Ensure this depends on the EKS cluster being fully ready
+  depends_on = [
+    module.dc-llc-cluster
   ]
 }
