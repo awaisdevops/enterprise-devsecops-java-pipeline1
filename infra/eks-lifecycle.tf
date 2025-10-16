@@ -3,7 +3,7 @@
 # Add lifecycle rules to prevent recreation of KMS alias
 resource "aws_kms_alias" "eks_cluster_kms_alias_override" {
   name          = "alias/eks/dc-llc-cluster"
-  target_key_id = module.dc-llc-cluster.module.kms.aws_kms_key.this["cluster"].key_id
+  target_key_id = module.dc-llc-cluster.kms_key_id
   
   lifecycle {
     ignore_changes = [name, target_key_id]

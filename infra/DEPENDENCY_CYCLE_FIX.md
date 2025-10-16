@@ -58,6 +58,10 @@ The solution breaks the circular dependency by completely decoupling the AWS Loa
 
 7. Removing the `direct-lb-policy.tf` file as its functionality is now in the decoupled file
 
+8. Fixing the KMS alias and CloudWatch Log Group references:
+   - Updated the KMS key reference in eks-lifecycle.tf to use the module's output
+   - Updated the import statements in import.tf to reference the local resources
+
 ## How to Apply the Fix
 
 1. Run `terraform init` to initialize the Terraform configuration

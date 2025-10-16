@@ -2,12 +2,12 @@
 
 # Import existing KMS alias
 import {
-  to = module.dc-llc-cluster.module.kms.aws_kms_alias.this["cluster"]
+  to = aws_kms_alias.eks_cluster_kms_alias_override[0]
   id = "alias/eks/dc-llc-cluster"
 }
 
 # Import existing CloudWatch Log Group
 import {
-  to = module.dc-llc-cluster.aws_cloudwatch_log_group.this[0]
+  to = aws_cloudwatch_log_group.eks_cluster_log_group_override[0]
   id = "/aws/eks/dc-llc-cluster/cluster"
 }
