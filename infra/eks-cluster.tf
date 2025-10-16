@@ -91,7 +91,7 @@ module "dc-llc-cluster" {
   # Disable encryption policy attachment
   attach_encryption_policy = false
   create_kms_key = false
-  encryption_config = []
+  encryption_config = null
 
   tags = {
     environment = "dev"

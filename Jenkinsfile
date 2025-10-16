@@ -5,19 +5,7 @@ pipeline {
         maven 'maven'
     }
      
-    // Add parameters for environment selection
-    parameters {
-        choice(
-            name: 'DEPLOY_ENV',
-            choices: ['dev', 'staging', 'prod'],
-            description: 'Select deployment environment'
-        )    
-        booleanParam(
-            name: 'DEPLOY_TO_K8S',
-            defaultValue: true,
-            description: 'Deploy to Kubernetes cluster'
-        )
-    }
+   
 
     // Environment-specific configurations
     environment {
@@ -34,17 +22,7 @@ pipeline {
     stages {              
         
         
-        stage('Build & Package') {
-            // tags: maven,compile,package
-            steps {
-                script {
-                    echo "building the application..."
-                    // Use mvn clean package to compile, run tests, and package the app
-                    // mvn builds app. clean removes older builds files. Dockerfile will fetch newer build app version 
-                    sh 'mvn clean package -DskipTests'
-                }
-            }
-        }
+       
             
 
         /*
