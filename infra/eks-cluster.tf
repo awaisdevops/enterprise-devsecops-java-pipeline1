@@ -92,10 +92,16 @@ module "dc-llc-cluster" {
   }
 
   # Adding associated permissions as part of node group configuration
-  iam_role_additional_policies = {
-    AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  }
+  iam_role_additional_policies = {}
+  
+  # Disable KMS key aliases to prevent circular dependencies
+  kms_key_aliases = {}
+  
+  # Disable custom IAM policies to prevent circular dependencies
+  custom_iam_role_policies = {}
+  
+  # Disable encryption policy attachment
+  attach_encryption_policy = false
 
   tags = {
     environment = "dev"

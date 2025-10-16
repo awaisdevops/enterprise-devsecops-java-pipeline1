@@ -85,3 +85,9 @@ The solution breaks the circular dependency by completely decoupling the AWS Loa
 - The `try()` function is used to handle the case when the cluster outputs aren't available yet
 - The `null_resource.cluster_readiness` ensures that the cluster is created before using its outputs
 - The local variables provide a way to safely access the cluster outputs without creating a circular dependency
+- To prevent internal EKS module circular dependencies, we disabled:
+  - `iam_role_additional_policies`: Set to empty map `{}`
+  - `kms_key_aliases`: Set to empty map `{}`
+  - `custom_iam_role_policies`: Set to empty map `{}`
+  - `attach_encryption_policy`: Set to `false`
+- These features can be re-enabled after the cluster is successfully created with `terraform import` and `terraform refresh` if needed

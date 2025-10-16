@@ -151,7 +151,7 @@ pipeline {
             }
         }    
         
-        
+        /*
         stage('Trivy: Image Scan'){            
             steps{
                 script {                    
@@ -166,7 +166,8 @@ pipeline {
                     archiveArtifacts artifacts: 'trivy-image-report.json', onlyIfSuccessful: true
                 }
             }
-        }       
+        }   
+        */    
                 
         
         stage("Terraform: Plan"){
