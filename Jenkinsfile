@@ -31,24 +31,7 @@ pipeline {
         SONAR_HOME= tool "SQ"
     }   
     
-    stages {
-
-        
-        stage('App Version Bump') {
-            // tags: maven,version,parse-version,set-version,image-tag
-            steps {
-                script {
-                    echo 'incrementing app version...'
-                    sh 'mvn build-helper:parse-version versions:set \
-                        -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
-                        versions:commit'
-                    def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
-                    def version = matcher[0][1]
-                    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
-            }
-            }
-        }
-        
+    stages {              
         
         
         stage('Build & Package') {
@@ -62,39 +45,7 @@ pipeline {
                 }
             }
         }
-        
-        stage('Unit Tests') {
-            steps {
-                echo 'Running Unit Tests...'
-                // 'withMaven' step ensures the correct Maven environment is used
-                withMaven(maven: 'maven') { 
-                    sh 'mvn test'
-                }
-            }            
-            post {
-                // 'always' ensures the reports are collected even if tests fail
-                always {
-                    // Collect and publish JUnit test reports
-                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/TEST-*.xml' 
-                }
-            }
-        }
-
-        stage('Integration Tests') {
-            steps {
-                echo 'Running Integration Tests...'
-                // Running 'verify' executes both the tests and the result check
-                withMaven(maven: 'maven') { 
-                    sh 'mvn verify -DskipUnitTests'  // Skip unit tests, only run integration tests
-                }
-            }
-            post {
-                always {
-                    // Collect and publish Failsafe test reports
-                    junit allowEmptyResults: true, testResults: '**/target/failsafe-reports/TEST-*.xml'
-                }
-            }
-        }        
+            
 
         /*
         stage("SonarQube: Code Scan"){
@@ -134,7 +85,7 @@ pipeline {
         }
         */
 
-        
+        /*    
         stage('Docker: Build Image') {              
 
             steps {
@@ -170,7 +121,7 @@ pipeline {
         */    
                 
         
-        stage("Terraform: Plan"){
+        stage("Terraform: Destroy"){
             
              environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -179,15 +130,12 @@ pipeline {
             steps{
                 script {
                     echo '==========================================='
-                    echo 'Planning Infrastructure Changes...'
+                    echo 'Destroying Infrastructure...'
                     echo '==========================================='
                     
                     dir('infra') {
-                        sh 'terraform init -upgrade -reconfigure -no-color'
-                        sh 'terraform validate -no-color'
-                        sh 'terraform fmt -check -recursive || true'
-                        sh 'terraform plan -out=tfplan -no-color -input=false'
-                        sh 'terraform show -no-color tfplan > tfplan-output.txt'
+                        
+                        sh 'terraform destroy -auto-approve'
                     }
                 }
             }
