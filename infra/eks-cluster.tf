@@ -11,8 +11,6 @@ output "cluster_endpoint" {
   
 }
 
-data "aws_region" "current" {}
-
 output "cluster_certificate_authority_data" {
   value = module.dc-llc-cluster.cluster_certificate_authority_data
   #value = module.dc-llc-cluster.cluster.certificate_authority_data 
