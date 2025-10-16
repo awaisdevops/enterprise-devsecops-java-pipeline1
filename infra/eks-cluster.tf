@@ -88,9 +88,6 @@ module "dc-llc-cluster" {
   # Adding associated permissions as part of node group configuration
   iam_role_additional_policies = {}
   
-  # Disable KMS key aliases to prevent circular dependencies
-  kms_key_aliases = {}
-  
   # Disable encryption policy attachment
   attach_encryption_policy = false
   create_kms_key = false
