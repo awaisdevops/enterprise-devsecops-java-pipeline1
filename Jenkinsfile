@@ -30,7 +30,7 @@ pipeline {
         // Sonar Qube
         SONAR_HOME= tool "SQ"
     }   
-    /*
+    
     stages {
 
         
@@ -135,7 +135,7 @@ pipeline {
         }
         */
 
-        /*
+        
         stage('Docker: Build Image') {              
 
             steps {
@@ -152,7 +152,7 @@ pipeline {
             }
         }    
         
-        /*
+        
         stage('Trivy: Image Scan'){            
             steps{
                 script {                    
