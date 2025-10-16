@@ -7,10 +7,9 @@ resource "aws_kms_alias" "eks_cluster_kms_alias_override" {
   
   lifecycle {
     ignore_changes = [name, target_key_id]
+    # Prevent this resource from being created or destroyed
+    prevent_destroy = true
   }
-  
-  # Prevent this resource from being created if the import.tf is handling it
-  count = 0
 }
 
 # Add lifecycle rules to prevent recreation of CloudWatch Log Group
@@ -20,8 +19,7 @@ resource "aws_cloudwatch_log_group" "eks_cluster_log_group_override" {
   
   lifecycle {
     ignore_changes = [name]
+    # Prevent this resource from being created or destroyed
+    prevent_destroy = true
   }
-  
-  # Prevent this resource from being created if the import.tf is handling it
-  count = 0
 }
