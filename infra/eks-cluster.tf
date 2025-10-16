@@ -97,9 +97,6 @@ module "dc-llc-cluster" {
   # Disable KMS key aliases to prevent circular dependencies
   kms_key_aliases = {}
   
-  # Disable custom IAM policies to prevent circular dependencies
-  custom_iam_role_policies = {}
-  
   # Disable encryption policy attachment
   attach_encryption_policy = false
 
