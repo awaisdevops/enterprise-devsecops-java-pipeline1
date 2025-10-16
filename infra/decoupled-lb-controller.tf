@@ -55,7 +55,7 @@ locals {
 
 # Define the Helm release
 resource "helm_release" "aws_load_balancer_controller_decoupled" {
-  name       = "aws-load-balancer-controller"
+  name       = "load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
   namespace  = "kube-system"
