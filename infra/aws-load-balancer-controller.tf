@@ -30,7 +30,7 @@ resource "helm_release" "aws_load_balancer_controller" {
   set = [
     {
       name  = "clusterName"
-      value = module.dc-llc-cluster.cluster_name
+      value = local.cluster_outputs.cluster_name
     },
     {
       name  = "region"
@@ -41,9 +41,6 @@ resource "helm_release" "aws_load_balancer_controller" {
       value = "true"
     },
     {
-
-
-      
       name  = "serviceAccount.name"
       value = "aws-load-balancer-controller"
     },
@@ -53,8 +50,9 @@ resource "helm_release" "aws_load_balancer_controller" {
     }
   ]
   
-  # Ensure this depends on the EKS cluster being fully ready
+  # Ensure this depends on the EKS cluster and IAM role being fully ready
   depends_on = [
-    module.dc-llc-cluster
+    null_resource.cluster_readiness,
+    module.lb-service-iam-role-service-account
   ]
 }

@@ -1,10 +1,5 @@
 # This file ensures that the add-ons are created in the correct order
 
-# Create a local variable for the EKS cluster name
-locals {
-  eks_cluster_name = module.dc-llc-cluster.cluster_name
-}
-
 # Create explicit dependencies between the add-ons and the load balancer controller
 resource "null_resource" "addon_dependencies" {
   # This will run after the load balancer controller is installed

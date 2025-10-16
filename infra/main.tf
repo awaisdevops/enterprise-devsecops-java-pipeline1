@@ -53,10 +53,14 @@ module "lb-service-iam-policy-role" {
 
 module "lb-service-iam-role-service-account" {
   source = "./lb-service-iam-role-service-account"
-  cluster_name = module.dc-llc-cluster.cluster_name
-  oidc_provider_arn = module.dc-llc-cluster.oidc_provider_arn
+  cluster_name = local.cluster_outputs.cluster_name
+  oidc_provider_arn = local.cluster_outputs.oidc_provider_arn
   aws_iam_policy_arn = module.lb-service-iam-policy-role.aws_iam_policy_arn  
-  oidc_issuer_url = module.dc-llc-cluster.cluster_oidc_issuer_url
+  oidc_issuer_url = local.cluster_outputs.oidc_issuer_url
+  
+  depends_on = [
+    null_resource.cluster_readiness
+  ]
 }
 
 
