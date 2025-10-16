@@ -26,7 +26,7 @@ The circular dependency was caused by:
 
 ## Solution
 
-The solution breaks the circular dependency by:
+The solution breaks the circular dependency by completely decoupling the AWS Load Balancer Controller from the EKS cluster:
 
 1. Creating a new file `break-dependency-cycle.tf` that:
    - Defines a local variable `cluster_outputs` to safely access EKS cluster outputs
@@ -34,27 +34,29 @@ The solution breaks the circular dependency by:
    - Creates a `null_resource.cluster_readiness` to ensure the cluster is created before using its outputs
    - Adds a data source for the AWS region
 
-2. Creating a new file `direct-lb-policy.tf` that:
-   - Defines the AWS Load Balancer Controller IAM policy directly
-   - Removes the dependency on the module that was causing the cycle
+2. Creating a new file `decoupled-lb-controller.tf` that:
+   - Defines all AWS Load Balancer Controller resources directly (IAM policy, IAM role, Helm release)
+   - Uses hardcoded values where necessary to avoid referencing cluster outputs
+   - Creates a separate dependency chain for the load balancer controller resources
+   - Provides a null_resource to update the role's trust policy after the cluster is created
 
 3. Modifying `main.tf` to:
-   - Remove the IAM policy module in favor of the direct policy creation
-   - Use the local variables instead of direct module outputs for the IAM role module
-   - Add a dependency on `null_resource.cluster_readiness` for the IAM role module
+   - Remove all IAM modules related to the load balancer controller
    - Use `try()` functions in the Kubernetes and Helm providers to avoid early evaluation
 
-4. Modifying `aws-load-balancer-controller.tf` to:
-   - Use the local variables instead of direct module outputs
-   - Depend on both `null_resource.cluster_readiness` and `module.lb-service-iam-role-service-account`
+4. Disabling the original `aws-load-balancer-controller.tf` file:
+   - Renamed to aws-load-balancer-controller.tf.disabled
+   - Removed from the active Terraform configuration
 
-5. Modifying `eks-addon-ordering.tf` by:
-   - Removing the local variable that directly referenced a module output
-   - Adding a timestamp trigger to ensure the resource is always created
+5. Modifying `eks-addon-ordering.tf` to:
+   - Depend on the new decoupled addon dependencies resource
+   - Add a timestamp trigger to ensure the resource is always created
 
 6. Modifying `eks-cluster.tf` to:
    - Remove the dependency on the `null_resource.addon_dependencies` resource
    - Remove the duplicate `aws_region` data source
+
+7. Removing the `direct-lb-policy.tf` file as its functionality is now in the decoupled file
 
 ## How to Apply the Fix
 

@@ -46,7 +46,10 @@ provider "helm" {
 }
 
 
-# Removed the module in favor of direct policy creation
+# All load balancer controller modules have been replaced by decoupled-lb-controller.tf
+# to break the dependency cycle
+
+# Removed the IAM policy module
 # module "lb-service-iam-policy-role" {
 #   source = "./lb-service-iam-policy-role"
 #   cluster_name = local.cluster_outputs.cluster_name
@@ -56,17 +59,18 @@ provider "helm" {
 #   ]
 # }
 
-module "lb-service-iam-role-service-account" {
-  source = "./lb-service-iam-role-service-account"
-  cluster_name = local.cluster_outputs.cluster_name
-  oidc_provider_arn = local.cluster_outputs.oidc_provider_arn
-  aws_iam_policy_arn = aws_iam_policy.aws_load_balancer_controller.arn  
-  oidc_issuer_url = local.cluster_outputs.oidc_issuer_url
-  
-  depends_on = [
-    null_resource.cluster_readiness
-  ]
-}
+# Removed the IAM role service account module
+# module "lb-service-iam-role-service-account" {
+#   source = "./lb-service-iam-role-service-account"
+#   cluster_name = local.cluster_outputs.cluster_name
+#   oidc_provider_arn = local.cluster_outputs.oidc_provider_arn
+#   aws_iam_policy_arn = aws_iam_policy.aws_load_balancer_controller.arn  
+#   oidc_issuer_url = local.cluster_outputs.oidc_issuer_url
+#   
+#   depends_on = [
+#     null_resource.cluster_readiness
+#   ]
+# }
 
 
 module "security_group" {
