@@ -178,13 +178,33 @@ pipeline {
             }
             steps{
                 script {
-                    
+                    echo '==========================================='
+                    echo 'Planning Infrastructure Changes...'
+                    echo '==========================================='
                     
                     dir('infra') {
-                        sh 'terraform destroy -auto-approve'
+                        sh 'terraform init -upgrade -reconfigure -no-color'
+                        sh 'terraform validate -no-color'
+                        sh 'terraform fmt -check -recursive || true'
+                        sh 'terraform plan -out=tfplan -no-color -input=false'
+                        sh 'terraform show -no-color tfplan > tfplan-output.txt'
                     }
                 }
-
             }
         }
-    }                      
+    }
+    
+    post {
+        success {
+            mail to: 'awais.akram11199@gmail.com',
+                 subject: "SUCCESS: Jenkins Build ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                 body: "The Jenkins build was successful. Check build details: ${env.BUILD_URL}"
+        }
+        
+        failure {
+            mail to: 'awais.akram11199@gmail.com',
+                 subject: "FAILURE: Jenkins Build ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                 body: "The Jenkins build FAILED! Please investigate: ${env.BUILD_URL}"
+        }
+    }
+}
