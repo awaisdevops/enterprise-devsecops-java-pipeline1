@@ -62,6 +62,18 @@ The solution breaks the circular dependency by completely decoupling the AWS Loa
    - Updated the KMS key reference in eks-lifecycle.tf to use the module's output
    - Updated the import statements in import.tf to reference the local resources
 
+9. Separating the CoreDNS add-on deployment:
+   - Removed coredns from the EKS cluster module's addon configuration
+   - Created a new `coredns-addon.tf` file that manages CoreDNS separately
+   - The CoreDNS add-on now depends on `null_resource.decoupled_addon_dependencies`
+   - This ensures CoreDNS is created after the AWS Load Balancer Controller webhook is ready
+   - Uses hardcoded cluster name to avoid circular dependencies with module outputs
+
+10. Additional resilience improvements:
+    - Increased wait time in decoupled addon dependencies from 60 to 150 seconds
+    - Added `atomic`, `cleanup_on_fail`, and `force_update` flags to the Helm release
+    - These flags help recover from failed installations and prevent state conflicts
+
 ## How to Apply the Fix
 
 1. Run `terraform init` to initialize the Terraform configuration

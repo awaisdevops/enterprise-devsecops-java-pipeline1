@@ -30,7 +30,7 @@ pipeline {
         // Sonar Qube
         SONAR_HOME= tool "SQ"
     }   
-
+    /*
     stages {
 
         
@@ -62,7 +62,7 @@ pipeline {
                 }
             }
         }
-        
+        */
         
         stage('Unit Tests') {
             steps {
@@ -135,7 +135,7 @@ pipeline {
         }
         */
 
-        
+        /*
         stage('Docker: Build Image') {              
 
             steps {

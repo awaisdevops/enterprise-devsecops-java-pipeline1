@@ -3,12 +3,11 @@
 
 # Create the coredns add-on after the load balancer controller is ready
 resource "aws_eks_addon" "coredns" {
-  cluster_name             = module.dc-llc-cluster.cluster_name
-  addon_name               = "coredns"
-  addon_version            = data.aws_eks_addon_version.coredns.version
-  resolve_conflicts        = "OVERWRITE"
-  preserve                 = false
-  most_recent              = true
+  cluster_name      = "dc-llc-cluster"
+  addon_name        = "coredns"
+  resolve_conflicts = "OVERWRITE"
+  preserve          = false
+  most_recent       = true
   
   timeouts {
     create = "30m"
@@ -20,11 +19,4 @@ resource "aws_eks_addon" "coredns" {
   depends_on = [
     null_resource.decoupled_addon_dependencies
   ]
-}
-
-# Get the latest version of coredns addon
-data "aws_eks_addon_version" "coredns" {
-  addon_name             = "coredns"
-  kubernetes_version     = module.dc-llc-cluster.cluster_version
-  most_recent            = true
 }
