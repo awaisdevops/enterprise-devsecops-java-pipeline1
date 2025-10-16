@@ -136,7 +136,6 @@ pipeline {
                     dir('infra') {
                         
                         sh 'terraform init -upgrade'
-                        sh 'terraform plan -out=tfplan -no-color -input=false'
                         sh 'terraform destroy -auto-approve'
                        
                     }
