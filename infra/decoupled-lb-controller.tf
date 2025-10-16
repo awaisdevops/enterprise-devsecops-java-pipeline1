@@ -67,6 +67,11 @@ resource "helm_release" "aws_load_balancer_controller_decoupled" {
   # Add wait flag to ensure it's fully deployed
   wait = true
 
+  # Add flags for resilience
+  atomic          = true
+  cleanup_on_fail = true
+  force_update    = true
+
   # Use dynamic values
   values = [
     jsonencode(local.helm_values)
