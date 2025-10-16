@@ -5,9 +5,7 @@
 resource "aws_eks_addon" "coredns" {
   cluster_name      = "dc-llc-cluster"
   addon_name        = "coredns"
-  resolve_conflicts = "OVERWRITE"
   preserve          = false
-  most_recent       = true
   
   timeouts {
     create = "30m"
