@@ -75,10 +75,10 @@ module "dc-llc-cluster" {
     #aws-ebs-csi-driver = {} 
   }
   
-  # Ensure add-ons are created after the addon_dependencies resource
-  depends_on = [
-    null_resource.addon_dependencies
-  ]
+  # We've removed this dependency to break the cycle
+  # depends_on = [
+  #   null_resource.addon_dependencies
+  # ]
   
 
   # Adds the current caller identity as an administrator via cluster access entry

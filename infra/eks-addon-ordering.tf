@@ -15,4 +15,10 @@ resource "null_resource" "addon_dependencies" {
   provisioner "local-exec" {
     command = "sleep 60"  # Give the controller time to initialize
   }
+  
+  # This is a dummy trigger to ensure this resource is always created after the cluster
+  # but doesn't create a circular dependency
+  triggers = {
+    always_run = "${timestamp()}"
+  }
 }

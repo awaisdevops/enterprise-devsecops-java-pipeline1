@@ -34,19 +34,27 @@ The solution breaks the circular dependency by:
    - Creates a `null_resource.cluster_readiness` to ensure the cluster is created before using its outputs
    - Adds a data source for the AWS region
 
-2. Modifying `main.tf` to:
-   - Use the local variables instead of direct module outputs for both IAM modules
-   - Add a dependency on `null_resource.cluster_readiness` for both IAM modules
+2. Creating a new file `direct-lb-policy.tf` that:
+   - Defines the AWS Load Balancer Controller IAM policy directly
+   - Removes the dependency on the module that was causing the cycle
+
+3. Modifying `main.tf` to:
+   - Remove the IAM policy module in favor of the direct policy creation
+   - Use the local variables instead of direct module outputs for the IAM role module
+   - Add a dependency on `null_resource.cluster_readiness` for the IAM role module
    - Use `try()` functions in the Kubernetes and Helm providers to avoid early evaluation
 
-3. Modifying `aws-load-balancer-controller.tf` to:
+4. Modifying `aws-load-balancer-controller.tf` to:
    - Use the local variables instead of direct module outputs
    - Depend on both `null_resource.cluster_readiness` and `module.lb-service-iam-role-service-account`
 
-4. Simplifying `eks-addon-ordering.tf` by:
+5. Modifying `eks-addon-ordering.tf` by:
    - Removing the local variable that directly referenced a module output
+   - Adding a timestamp trigger to ensure the resource is always created
 
-5. Removing the duplicate `aws_region` data source from `eks-cluster.tf`
+6. Modifying `eks-cluster.tf` to:
+   - Remove the dependency on the `null_resource.addon_dependencies` resource
+   - Remove the duplicate `aws_region` data source
 
 ## How to Apply the Fix
 

@@ -46,20 +46,21 @@ provider "helm" {
 }
 
 
-module "lb-service-iam-policy-role" {
-  source = "./lb-service-iam-policy-role"
-  cluster_name = local.cluster_outputs.cluster_name
-  
-  depends_on = [
-    null_resource.cluster_readiness
-  ]
-}
+# Removed the module in favor of direct policy creation
+# module "lb-service-iam-policy-role" {
+#   source = "./lb-service-iam-policy-role"
+#   cluster_name = local.cluster_outputs.cluster_name
+#   
+#   depends_on = [
+#     null_resource.cluster_readiness
+#   ]
+# }
 
 module "lb-service-iam-role-service-account" {
   source = "./lb-service-iam-role-service-account"
   cluster_name = local.cluster_outputs.cluster_name
   oidc_provider_arn = local.cluster_outputs.oidc_provider_arn
-  aws_iam_policy_arn = module.lb-service-iam-policy-role.aws_iam_policy_arn  
+  aws_iam_policy_arn = aws_iam_policy.aws_load_balancer_controller.arn  
   oidc_issuer_url = local.cluster_outputs.oidc_issuer_url
   
   depends_on = [
