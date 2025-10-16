@@ -19,7 +19,5 @@ resource "aws_cloudwatch_log_group" "eks_cluster_log_group_override" {
   
   lifecycle {
     ignore_changes = [name]
-    # Prevent this resource from being created or destroyed
-    prevent_destroy = true
   }
 }
