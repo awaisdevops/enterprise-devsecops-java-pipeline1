@@ -52,7 +52,8 @@ pipeline {
             steps{
                 withSonarQubeEnv("SQ"){                    
                     // The Maven plugin handles paths to binaries automatically.
-                    sh "mvn clean verify sonar:sonar"
+                    // We override the host URL to ensure it points to our dynamic EC2 instance.
+                    sh "mvn clean verify sonar:sonar -Dsonar.host.url=http://${env.SONAR_HOST_IP}:9000"
                 }
             }
         }     
@@ -186,6 +187,12 @@ pipeline {
                             ).trim()
                             
                             env.EKS_CLUSTER_NAME = clusterName
+                            
+                            def sonarHostIp = sh(
+                                script: 'terraform output -raw ec2_public_ip 2>/dev/null || echo ""',
+                                returnStdout: true
+                            ).trim()
+                            env.SONAR_HOST_IP = sonarHostIp
                             
                             echo 'Configuring kubectl for EKS cluster...'
                             sh """
