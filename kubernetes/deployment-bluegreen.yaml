@@ -38,6 +38,9 @@ spec:
         volumeMounts:
         - name: logs-volume
           mountPath: /usr/app/logs
+        # Add a volume mount for the temp directory
+        - name: tmp-volume
+          mountPath: /tmp
         image: awaisakram11199/devopsimages:$IMAGE_NAME
         imagePullPolicy: Always
         ports:
@@ -61,4 +64,7 @@ spec:
       # Define the volume that will be mounted
       volumes:
       - name: logs-volume
+        emptyDir: {}
+      # Define the volume for the temp directory
+      - name: tmp-volume
         emptyDir: {}
