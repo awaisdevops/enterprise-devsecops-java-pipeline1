@@ -76,3 +76,8 @@ module "aws_ceritification_manager" {
   domain_name    = "devops-portfolio.site"
   hosted_zone_id = module.hosted_zone.hosted_zone_id
 }
+
+output "ec2_public_ip" {
+  description = "Public IP of the EC2 instance for Ansible."
+  value       = module.ec2.ec2_public_ip
+}
