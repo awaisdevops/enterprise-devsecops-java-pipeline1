@@ -7,6 +7,11 @@ variable "ec2_sg_ssh_http_https" {}
 variable "enable_public_ip_address" {}
 variable "ec2_sg_nexus" {}
 
+output "ec2_public_ip" {
+  description = "Public IP address of the Nexus EC2 instance"
+  value       = aws_instance.dc-llc-nexus.public_ip
+}
+
 output "nexus_ec2_instnace_id" {
   value = aws_instance.dc-llc-nexus.id
   

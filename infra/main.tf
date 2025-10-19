@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "~> 6.0"
     }
   }
@@ -15,64 +15,6 @@ variable "aws_region" {
   default = "ap-northeast-2"
 }
 
-provider "kubernetes" {
-  host                   = try(module.dc-llc-cluster.cluster_endpoint, "")
-  cluster_ca_certificate = try(base64decode(module.dc-llc-cluster.cluster_certificate_authority_data), null)
-
-  # Dynamic Token Generation via AWS CLI
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args = ["eks", "get-token", "--cluster-name", try(module.dc-llc-cluster.cluster_name, "")]
-  }
-}
-
-# Specify the Terraform provider for Helm
-provider "helm" {
-  # The kubernetes block tells the Helm provider how to connect to the cluster
-  kubernetes = {
-    host                   = try(module.dc-llc-cluster.cluster_endpoint, "")
-
-    cluster_ca_certificate = try(base64decode(module.dc-llc-cluster.cluster_certificate_authority_data), null)
-
-    # 3. Dynamic Token Generation (Authentication)
-    # This executes the AWS CLI to fetch a fresh, short-lived token
-    exec = {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args = ["eks", "get-token", "--cluster-name", try(module.dc-llc-cluster.cluster_name, "")]
-    }
-  }
-}
-
-
-# All load balancer controller modules have been replaced by decoupled-lb-controller.tf
-# to break the dependency cycle
-
-# Removed the IAM policy module
-# module "lb-service-iam-policy-role" {
-#   source = "./lb-service-iam-policy-role"
-#   cluster_name = local.cluster_outputs.cluster_name
-#   
-#   depends_on = [
-#     null_resource.cluster_readiness
-#   ]
-# }
-
-# Removed the IAM role service account module
-# module "lb-service-iam-role-service-account" {
-#   source = "./lb-service-iam-role-service-account"
-#   cluster_name = local.cluster_outputs.cluster_name
-#   oidc_provider_arn = local.cluster_outputs.oidc_provider_arn
-#   aws_iam_policy_arn = aws_iam_policy.aws_load_balancer_controller.arn  
-#   oidc_issuer_url = local.cluster_outputs.oidc_issuer_url
-#   
-#   depends_on = [
-#     null_resource.cluster_readiness
-#   ]
-# }
-
-
 module "security_group" {
   source            = "./security-groups"
   ec2_sg_name       = "SG for EC2 to allow ports 22, 80 and 443"
@@ -82,8 +24,8 @@ module "security_group" {
 }
 
 module "ec2" {
-  source                   = "./ec2"
-  ami_id                   = "ami-099099dff4384719c" 
+  source = "./ec2"
+  ami_id = "ami-099099dff4384719c"
 
   instance_type            = "t2.micro"
   tag_name                 = "dc-llc-nexus"

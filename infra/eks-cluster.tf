@@ -6,9 +6,9 @@ variable "k8s_version" {
 }
 
 output "cluster_endpoint" {
-  value = module.dc-llc-cluster.cluster_endpoint  
+  value = module.dc-llc-cluster.cluster_endpoint
   #value = module.dc-llc-cluster.cluster.endpoint
-  
+
 }
 
 output "cluster_certificate_authority_data" {
@@ -37,37 +37,30 @@ module "dc-llc-cluster" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.1.3"
 
-  name    = var.name
-  kubernetes_version = var.k8s_version
-  endpoint_public_access  = true
+  name                   = var.name
+  kubernetes_version     = var.k8s_version
+  endpoint_public_access = true
 
-  /*
-  # Including the add-on as part of EKS module
-  cluster_addons = {    
-    aws-ebs-csi-driver = {}
-  }
-  */
-  
   addons = {
+    
     eks-pod-identity-agent = {
-      before_compute = true
+      before_compute    = true
       resolve_conflicts = "OVERWRITE"
-      most_recent = true
+      most_recent       = true
     }
     kube-proxy = {
       resolve_conflicts = "OVERWRITE"
-      most_recent = true
+      most_recent       = true
     }
     vpc-cni = {
-      before_compute = true
+      before_compute    = true
       resolve_conflicts = "OVERWRITE"
-      most_recent = true
+      most_recent       = true
     }
-    #aws-ebs-csi-driver = {} 
   }
 
   # Adds the current caller identity as an administrator via cluster access entry
-  enable_cluster_creator_admin_permissions = true
+  enable_cluster_creator_admin_permissions = true  
 
   # Refering through modules's outputs 
   vpc_id     = module.dc-llc-vpc.vpc_id
@@ -87,11 +80,6 @@ module "dc-llc-cluster" {
 
   # Adding associated permissions as part of node group configuration
   iam_role_additional_policies = {}
-  
-  # Disable encryption policy attachment
-  attach_encryption_policy = false
-  create_kms_key = false
-  encryption_config = null
 
   tags = {
     environment = "dev"

@@ -4,10 +4,9 @@ metadata:
   name: $APP_NAME
   labels:
     app: $APP_NAME
-    environment: $DEPLOY_ENV
 spec:
-  replicas: $REPLICAS
-  minReadySeconds: $MIN_READY_SECONDS
+  replicas: 1
+  minReadySeconds: 10
   selector:
     matchLabels:
       app: $APP_NAME
@@ -15,8 +14,6 @@ spec:
     metadata:
       labels:
         app: $APP_NAME
-        environment: $DEPLOY_ENV
-        version: "$IMAGE_NAME"
     spec:
       terminationGracePeriodSeconds: 30
       securityContext:
@@ -40,12 +37,7 @@ spec:
         ports:
         - containerPort: 8090
           name: http
-          protocol: TCP
-        env:
-        - name: ENVIRONMENT
-          value: "$DEPLOY_ENV"
-        - name: APP_NAME
-          value: "$APP_NAME"
+          protocol: TCP        
         readinessProbe:
             periodSeconds: 10
             initialDelaySeconds: 20
@@ -60,9 +52,9 @@ spec:
               port: 8090
         resources:
             requests:
-              cpu: $CPU_REQUEST
-              memory: $MEMORY_REQUEST
+              cpu: 400m
+              memory: 256Mi
             limits:
-              cpu: $CPU_LIMIT
-              memory: $MEMORY_LIMIT
+              cpu: 600m
+              memory: 512Mi
 

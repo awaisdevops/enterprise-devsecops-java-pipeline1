@@ -1,133 +1,34 @@
 ---
-# Ansible Playbook to Configure 1GB Swap Memory on EKS Worker Nodes
-- name: Configure Swap Memory on EKS Worker Nodes
-  hosts: eks_workers
+- hosts: all
   become: yes
-  vars:
-    swap_file_path: /swapfile
-    swap_size_mb: 1024  # 1GB in MB
-  
   tasks:
-    - name: Display node information
-      debug:
-        msg: "Configuring swap on {{ inventory_hostname }} ({{ ansible_distribution }} {{ ansible_distribution_version }})"
-    
-    - name: Check if swap is already configured
+    - name: Check if swap is already active
       command: swapon --show
       register: swap_status
       changed_when: false
-      failed_when: false
-    
-    - name: Display current swap status
-      debug:
-        var: swap_status.stdout_lines
-    
-    - name: Check if swap file already exists
-      stat:
-        path: "{{ swap_file_path }}"
-      register: swap_file_check
-    
-    - name: Turn off existing swap if present
-      command: swapoff {{ swap_file_path }}
-      when: swap_file_check.stat.exists
-      ignore_errors: yes
-    
-    - name: Remove old swap file if exists
-      file:
-        path: "{{ swap_file_path }}"
-        state: absent
-      when: swap_file_check.stat.exists
-    
-    - name: Create swap file with correct size
-      command: dd if=/dev/zero of={{ swap_file_path }} bs=1M count={{ swap_size_mb }}
+
+    - name: Create swap file
+      when: swap_status.stdout == ""
+      command: fallocate -l 2G /swapfile
       args:
-        creates: "{{ swap_file_path }}"
-      register: swap_file_created
-    
-    - name: Set correct permissions on swap file
+        creates: /swapfile
+
+    - name: Set permissions for swap file
+      when: swap_status.stdout == ""
       file:
-        path: "{{ swap_file_path }}"
+        path: /swapfile
         mode: '0600'
-        owner: root
-        group: root
-    
-    - name: Format swap file
-      command: mkswap {{ swap_file_path }}
-      when: swap_file_created.changed
-    
-    - name: Enable swap file
-      command: swapon {{ swap_file_path }}
-      when: swap_file_created.changed
-    
-    - name: Verify swap is enabled
-      command: swapon --show
-      register: swap_verify
-      changed_when: false
-    
-    - name: Display swap status
-      debug:
-        var: swap_verify.stdout_lines
-    
-    - name: Check if swap entry exists in fstab
+
+    - name: Make swap
+      when: swap_status.stdout == ""
+      command: mkswap /swapfile
+      
+    - name: Turn on swap
+      when: swap_status.stdout == ""
+      command: swapon /swapfile
+
+    - name: Add swap to fstab for persistence
+      when: swap_status.stdout == ""
       lineinfile:
         path: /etc/fstab
-        regexp: '^{{ swap_file_path }}'
-        state: absent
-      check_mode: yes
-      register: fstab_check
-      changed_when: false
-    
-    - name: Add swap to fstab for persistence across reboots
-      lineinfile:
-        path: /etc/fstab
-        line: "{{ swap_file_path }} none swap sw 0 0"
-        state: present
-        backup: yes
-      when: fstab_check is not changed or swap_file_created.changed
-    
-    - name: Set swappiness value (controls swap usage aggressiveness)
-      sysctl:
-        name: vm.swappiness
-        value: '10'
-        state: present
-        sysctl_set: yes
-        reload: yes
-    
-    - name: Set vfs_cache_pressure value
-      sysctl:
-        name: vm.vfs_cache_pressure
-        value: '50'
-        state: present
-        sysctl_set: yes
-        reload: yes
-    
-    - name: Verify final swap configuration
-      shell: |
-        echo "=== Swap Status ==="
-        free -h
-        echo ""
-        echo "=== Swap Details ==="
-        swapon --show
-        echo ""
-        echo "=== fstab Entry ==="
-        grep swap /etc/fstab || echo "No swap entry in fstab"
-      register: final_status
-      changed_when: false
-    
-    - name: Display final configuration
-      debug:
-        var: final_status.stdout_lines
-    
-    - name: Create swap configuration summary
-      copy:
-        content: |
-          Swap Configuration Summary
-          ==========================
-          Node: {{ inventory_hostname }}
-          Timestamp: {{ ansible_date_time.iso8601 }}
-          Swap Size: {{ swap_size_mb }}MB
-          Swap File: {{ swap_file_path }}
-          Swappiness: 10
-          Status: Configured and Active
-        dest: /tmp/swap-config-summary.txt
-        mode: '0644'
+        line: '/swapfile none swap sw 0 0'

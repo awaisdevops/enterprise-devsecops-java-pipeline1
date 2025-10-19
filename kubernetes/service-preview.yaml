@@ -1,18 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${APP_NAME}-preview
-  labels:
-    app: ${APP_NAME}
-    environment: ${DEPLOY_ENV}
-    service-type: preview
+  name: $APP_NAME-preview-$SLOT
 spec:
   type: ClusterIP
   ports:
     - port: 8090
       targetPort: 8090
-      protocol: TCP
-      name: http
   selector:
-    app: ${APP_NAME}
-    slot: ${SLOT}
+    app: $APP_NAME
+    slot: $SLOT

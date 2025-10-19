@@ -1,9 +1,0 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: $APP_NAME  
-provisioner: kubernetes.io/aws-ebs  # This is the EBS provisioner
-parameters:
-  type: gp3  
-  fsType: ext4  
-reclaimPolicy: Delete  # Options are 'Retain' or 'Delete' when the PVC is deleted
