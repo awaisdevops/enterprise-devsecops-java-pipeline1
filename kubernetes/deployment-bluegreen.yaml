@@ -34,6 +34,10 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
+        # Add a volume mount for the logs directory
+        volumeMounts:
+        - name: logs-volume
+          mountPath: /usr/app/logs
         image: awaisakram11199/devopsimages:$IMAGE_NAME
         imagePullPolicy: Always
         ports:
@@ -54,3 +58,7 @@ spec:
             limits:
               cpu: 600m
               memory: 512Mi
+      # Define the volume that will be mounted
+      volumes:
+      - name: logs-volume
+        emptyDir: {}
