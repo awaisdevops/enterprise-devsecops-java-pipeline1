@@ -53,7 +53,7 @@ pipeline {
                 withSonarQubeEnv("SQ"){                    
                     // The Maven plugin handles paths to binaries automatically.
                     // We override the host URL to ensure it points to our dynamic EC2 instance.
-                    sh "mvn clean verify sonar:sonar -Dsonar.host.url=http://${env.SONAR_HOST_IP}:9000"
+                    sh "mvn clean verify sonar:sonar -Dsonar.host.url=http://13.124.49.252/:9000"
                 }
             }
         }     
