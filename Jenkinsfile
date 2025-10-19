@@ -52,8 +52,7 @@ pipeline {
             steps{
                 withSonarQubeEnv("SQ"){                    
                     // The Maven plugin handles paths to binaries automatically.
-                    // We override the host URL to ensure it points to our dynamic EC2 instance.
-                    sh "mvn clean verify sonar:sonar -Dsonar.host.url=http://13.124.49.252/:9000"
+                    sh "mvn clean verify sonar:sonar"
                 }
             }
         }     
@@ -65,10 +64,9 @@ pipeline {
                 dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'dc'
                 dependencyCheckPublisher pattern: '/app-dep-check-report.html'
             }
-        }        
-        */
-
-        
+        }    
+        */  
+                
         stage("Trivy: Filesystem Scan"){
             steps{
                 sh "trivy fs --format  table -o trivy-fs-report.json ."
@@ -84,7 +82,6 @@ pipeline {
                 }
             }
         }
-        
         
         stage('Docker: Build Image') {              
 
@@ -187,12 +184,6 @@ pipeline {
                             ).trim()
                             
                             env.EKS_CLUSTER_NAME = clusterName
-                            
-                            def sonarHostIp = sh(
-                                script: 'terraform output -raw ec2_public_ip 2>/dev/null || echo ""',
-                                returnStdout: true
-                            ).trim()
-                            env.SONAR_HOST_IP = sonarHostIp
                             
                             echo 'Configuring kubectl for EKS cluster...'
                             sh """
