@@ -52,7 +52,7 @@ pipeline {
                 withSonarQubeEnv("SQ"){                    
                     // The Maven plugin handles paths to binaries automatically.
                     // We override the host URL to ensure it points to the correct server.
-                    sh "mvn clean verify sonar:sonar -Dsonar.host.url=http://13.124.49.252/:9000"
+                    sh "mvn clean verify sonar:sonar -Dsonar.host.url=http://13.124.49.252:9000"
                 }
             }
         }     
