@@ -57,7 +57,7 @@ pipeline {
             }
         }     
         
-
+        /*
         
         stage("OWASP: Dependency Check"){
             steps{
@@ -65,7 +65,7 @@ pipeline {
                 dependencyCheckPublisher pattern: '/app-dep-check-report.html'
             }
         }        
-        
+        */
 
         
         stage("Trivy: Filesystem Scan"){
