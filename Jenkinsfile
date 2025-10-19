@@ -211,7 +211,7 @@ pipeline {
                 }
             }
         }
-        */
+        
         stage('Ansible: EC2 Swap Config') {
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
