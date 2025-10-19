@@ -33,7 +33,8 @@ pipeline {
             }
             }
         }      
-                
+
+             
         stage('Build & Package') {
             // tags: maven,compile,package
             steps {
@@ -117,7 +118,7 @@ pipeline {
             }
         }   
         */  
-        
+        /*
         stage("Terraform: Plan"){
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -210,7 +211,7 @@ pipeline {
                 }
             }
         }
-
+        */
         stage('Ansible: EC2 Swap Config') {
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -221,30 +222,38 @@ pipeline {
                     echo '==========================================='
                     echo 'Configuring EC2 Instance with Ansible'
                     echo '==========================================='
-
+                    
+                    def ec2_public_ip
                     dir('infra') {
                         // Get the public IP of the EC2 instance from Terraform output
-                        def ec2_public_ip = sh(
+                        ec2_public_ip = sh(
                             script: 'terraform output -raw ec2_public_ip',
                             returnStdout: true
                         ).trim()
+                    }
 
-                        if (ec2_public_ip) {
-                            // Dynamically create the Ansible inventory file
-                            sh "echo '[ec2-instance]' > ../ansible/inventory/hosts"
-                            sh "echo '${ec2_public_ip}' >> ../ansible/inventory/hosts"
+                    if (ec2_public_ip) {
+                        // Ensure the inventory directory exists before writing to it
+                        sh "mkdir -p ansible/inventory"
+                        
+                        // Dynamically create the Ansible inventory file from the workspace root
+                        sh "echo '[ec2-instance]' > ansible/inventory/hosts"
+                        sh "echo '${ec2_public_ip}' >> ansible/inventory/hosts"
 
-                            echo "Ansible Inventory created for host: ${ec2_public_ip}"
-                            
-                            // Use the ssh-agent plugin to provide the SSH key to Ansible
-                            sshagent(credentials: ['ec2-ssh-key']) {
-                                sh 'ansible-playbook -i ansible/inventory/hosts ansible/playbooks/configure-swap.yml'
+                        echo "Ansible Inventory created for host: ${ec2_public_ip}"
+                        
+                        // Use the ssh-agent plugin to provide the SSH key to Ansible
+                        sshagent(credentials: ['ec2-ssh-key']) {
+                            // Change to the ansible directory to run the playbook.
+                            // This allows Ansible to automatically find ansible.cfg and the inventory.
+                            dir('ansible') {
+                                sh 'ansible-playbook playbooks/configure-swap.yml'
                             }
-                            
-                            echo '✓ Ansible playbook executed successfully!'
-                        } else {
-                            echo 'Warning: EC2 public IP not found. Skipping Ansible configuration.'
                         }
+                        
+                        echo '✓ Ansible playbook executed successfully!'
+                    } else {
+                        echo 'Warning: EC2 public IP not found. Skipping Ansible configuration.'
                     }
                 }
             }
