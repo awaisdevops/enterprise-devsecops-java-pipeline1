@@ -307,7 +307,7 @@ pipeline {
                     export ACTIVE_SLOT="''' + currentSlot + '''"
 
                     # If no service exists yet, have it point to the target slot initially
-                    if [ "$ACTIVE_SLOT" == "none" ]; then
+                    if [ "$ACTIVE_SLOT" = "none" ]; then
                         export ACTIVE_SLOT="''' + targetSlot + '''"
                     fi
 
