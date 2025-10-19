@@ -335,7 +335,10 @@ pipeline {
 
                         // --- 5. Switch Live Traffic ---
                         echo "Switching live traffic to ${targetSlot}..."
-                        sh "kubectl patch service my-app -p '{\\\"spec\\\":{\\\"selector\\\":{\\\"slot\\\":\\\"${targetSlot}\\\"}}}'"
+                        // Construct the JSON patch payload as a clean Groovy string
+                        def patchPayload = """{"spec":{"selector":{"slot":"${targetSlot}"}}}"""
+                        // Execute the kubectl command, wrapping the payload variable in single quotes for the shell
+                        sh "kubectl patch service my-app -p '${patchPayload}'"
                         echo "✓ Traffic is now routed to the ${targetSlot} deployment."
 
                         // --- 6. (Optional) Cleanup Old Deployment ---
