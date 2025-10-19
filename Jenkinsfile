@@ -47,7 +47,7 @@ pipeline {
             }
         }                     
 
-        /*
+        
         stage("SonarQube: Code Scan"){
             steps{
                 withSonarQubeEnv("SQ"){                    
@@ -56,26 +56,26 @@ pipeline {
                 }
             }
         }     
-        */   
+        
 
-        /*
+        
         stage("OWASP: Dependency Check"){
             steps{
                 dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'dc'
                 dependencyCheckPublisher pattern: '/app-dep-check-report.html'
             }
         }        
-        */
+        
 
-        /*
+        
         stage("Trivy: Filesystem Scan"){
             steps{
                 sh "trivy fs --format  table -o trivy-fs-report.json ."
             }
         }   
-        */
+        
 
-        /*
+    
         stage("SonarQube: Quality Gate"){
             steps{
                 timeout(time: 10, unit: "MINUTES"){
@@ -83,7 +83,7 @@ pipeline {
                 }
             }
         }
-        */
+        
         
         stage('Docker: Build Image') {              
 
@@ -101,7 +101,7 @@ pipeline {
             }
         }   
 
-        /*
+        
         stage('Trivy: Image Scan'){            
             steps{
                 script {                    
@@ -117,8 +117,8 @@ pipeline {
                 }
             }
         }   
-        */  
-        /*
+        
+        
         stage("Terraform: Plan"){
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
