@@ -118,7 +118,7 @@ pipeline {
             }
         }   
         */  
-        
+        /*
         stage("Terraform: Plan"){
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -264,6 +264,7 @@ pipeline {
                 }
             }
         }
+        */
 
         stage('Blue-Green Deploy') {
             environment {
@@ -302,7 +303,7 @@ pipeline {
                     // Substitute variables and deploy the blue-green manifests
                     sh '''
                     export APP_NAME="my-app"
-                    export IMAGE_NAME="${env.IMAGE_NAME}"
+                    export IMAGE_NAME="''' + env.IMAGE_NAME + '''"
                     export SLOT="''' + targetSlot + '''"
                     export ACTIVE_SLOT="''' + currentSlot + '''"
 
