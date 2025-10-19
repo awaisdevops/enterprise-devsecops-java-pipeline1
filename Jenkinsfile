@@ -264,7 +264,7 @@ pipeline {
                 }
             }
         }
-        */
+        
 
         stage('Blue-Green Deploy') {
             environment {
