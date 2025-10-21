@@ -56,32 +56,62 @@ pipeline {
                 }
             }
         }     
+
+        stage('Unit Tests') {
+            steps {
+                echo 'Running Unit Tests...'
+                // 'withMaven' step ensures the correct Maven environment is used
+                withMaven(maven: 'maven') { 
+                    sh 'mvn test'
+                }
+            }            
+            post {
+                // 'always' ensures the reports are collected even if tests fail
+                always {
+                    // Collect and publish JUnit test reports
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/TEST-*.xml' 
+                }
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                echo 'Running Integration Tests...'
+                // Running 'verify' executes both the tests and the result check
+                withMaven(maven: 'maven') { 
+                    sh 'mvn verify -DskipUnitTests'  // Skip unit tests, only run integration tests
+                }
+            }
+            post {
+                always {
+                    // Collect and publish Failsafe test reports
+                    junit allowEmptyResults: true, testResults: '**/target/failsafe-reports/TEST-*.xml'
+                }
+            }
+        }
         
-        /*
-        
+                
         stage("OWASP: Dependency Check"){
             steps{
                 dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'dc'
                 dependencyCheckPublisher pattern: '/app-dep-check-report.html'
             }
         }    
-        */  
+        
                 
         stage("Trivy: Filesystem Scan"){
             steps{
                 sh "trivy fs --format  table -o trivy-fs-report.json ."
             }
-        }   
-        
-
-        /*
+        }           
+       
         stage("SonarQube: Quality Gate"){
             steps{
                 timeout(time: 10, unit: "MINUTES"){
                     waitForQualityGate abortPipeline: false
                 }
             }
-        }*/
+        }
         
         stage('Docker: Build Image') {              
 
@@ -98,7 +128,6 @@ pipeline {
                 }
             }
         }   
-
         
         stage('Trivy: Image Scan'){            
             steps{
@@ -115,8 +144,7 @@ pipeline {
                 }
             }
         }   
-        
-        
+                
         stage("Terraform: Plan"){
             environment {
                 AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
